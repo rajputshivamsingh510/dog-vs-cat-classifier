@@ -3,29 +3,30 @@ const input = document.getElementById("fileInput");
 const browse = document.getElementById("browseBtn");
 const preview = document.getElementById("preview");
 
-browse.onclick = () => input.click();
-
-input.onchange = () => {
-
-    showPreview(input.files[0]);
-
+browse.onclick = (e) => {
+    e.stopPropagation();
+    input.click();
 };
 
-dropArea.addEventListener("dragover",(e)=>{
+// Clicking anywhere on the empty viewfinder also opens the file picker
+dropArea.addEventListener("click", () => {
+    if (!dropArea.classList.contains("has-image")) input.click();
+});
 
+input.onchange = () => {
+    showPreview(input.files[0]);
+};
+
+dropArea.addEventListener("dragover", (e) => {
     e.preventDefault();
     dropArea.classList.add("active");
-
 });
 
-dropArea.addEventListener("dragleave",()=>{
-
+dropArea.addEventListener("dragleave", () => {
     dropArea.classList.remove("active");
-
 });
 
-dropArea.addEventListener("drop",(e)=>{
-
+dropArea.addEventListener("drop", (e) => {
     e.preventDefault();
 
     input.files = e.dataTransfer.files;
@@ -33,20 +34,17 @@ dropArea.addEventListener("drop",(e)=>{
     showPreview(input.files[0]);
 
     dropArea.classList.remove("active");
-
 });
 
-function showPreview(file){
+function showPreview(file) {
+    if (!file) return;
 
     const reader = new FileReader();
 
-    reader.onload = function(e){
-
+    reader.onload = function (e) {
         preview.src = e.target.result;
-        preview.style.display = "block";
-
-    }
+        dropArea.classList.add("has-image");
+    };
 
     reader.readAsDataURL(file);
-
 }
