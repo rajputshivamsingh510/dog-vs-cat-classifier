@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog vs Cat Classifier</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>🐶 Dog vs Cat Classifier 🐱</h1>
+
+    <form id="uploadForm" action="/predict" method="POST" enctype="multipart/form-data">
+
+        <div class="drop-area" id="drop-area">
+
+            <p>Drag & Drop Image Here</p>
+            <span>OR</span>
+
+            <button type="button" id="browseBtn">
+                Browse Image
+            </button>
+
+            <input type="file" id="fileInput" name="image" hidden accept="image/*">
+
+        </div>
+
+        <img id="preview">
+
+        <button type="submit" class="predict-btn">
+            Predict
+        </button>
+
+    </form>
+
+    {% if prediction %}
+        <h2>{{ prediction }}</h2>
+        <img src="{{ image }}" class="result-image">
+    {% endif %}
+
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>

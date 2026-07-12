@@ -1,0 +1,59 @@
+body{
+
+    background:#f3f5f9;
+    font-family:Arial;
+}
+
+.container{
+
+    width:600px;
+    margin:40px auto;
+    text-align:center;
+
+}
+
+.drop-area{
+
+    border:3px dashed #4a90e2;
+    border-radius:15px;
+    padding:40px;
+    cursor:pointer;
+    transition:.3s;
+
+}
+
+.drop-area.active{
+
+    background:#eaf3ff;
+
+}
+
+button{
+
+    margin-top:20px;
+    padding:12px 30px;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+}
+
+.predict-btn{
+
+    background:#4CAF50;
+    color:white;
+}
+
+#preview{
+
+    margin-top:20px;
+    max-width:300px;
+    display:none;
+    border-radius:10px;
+
+}
+
+.result-image{
+
+    margin-top:20px;
+    width:300px;
+}
