@@ -1,21 +1,20 @@
 import os
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"  # quiet TensorFlow logging
 
 import base64
 import numpy as np
 import cv2
+import tensorflow as tf
 from flask import Flask, render_template, request
 
-try:
-    import tflite_runtime.interpreter as tflite
-except ImportError:
-    # Fallback if tflite_runtime isn't available
-    import tensorflow.lite as tflite
+# Reduce TF's internal thread overhead on small servers
+tf.config.threading.set_intra_op_parallelism_threads(1)
+tf.config.threading.set_inter_op_parallelism_threads(1)
 
 app = Flask(__name__)
 
 # Load TFLite model once at startup
-interpreter = tflite.Interpreter(model_path="model.tflite")
+interpreter = tf.lite.Interpreter(model_path="model.tflite")
 interpreter.allocate_tensors()
 
 input_details = interpreter.get_input_details()
