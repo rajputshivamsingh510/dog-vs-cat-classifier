@@ -1,15 +1,25 @@
-from flask import Flask, render_template, request
-from tensorflow import keras
+import os
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+import base64
 import numpy as np
 import cv2
-import os
+from flask import Flask, render_template, request
+
+try:
+    import tflite_runtime.interpreter as tflite
+except ImportError:
+    # Fallback if tflite_runtime isn't available
+    import tensorflow.lite as tflite
 
 app = Flask(__name__)
 
-model = keras.models.load_model("model.keras")
+# Load TFLite model once at startup
+interpreter = tflite.Interpreter(model_path="model.tflite")
+interpreter.allocate_tensors()
 
-UPLOAD_FOLDER = "static/uploads"
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+input_details = interpreter.get_input_details()
+output_details = interpreter.get_output_details()
 
 
 @app.route("/")
@@ -19,31 +29,34 @@ def home():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-
     file = request.files["image"]
 
-    filepath = os.path.join(app.config["UPLOAD_FOLDER"], file.filename)
-    file.save(filepath)
+    file_bytes = np.frombuffer(file.read(), np.uint8)
+    img = cv2.imdecode(file_bytes, cv2.IMREAD_COLOR)
 
-    img = cv2.imread(filepath)
-    img = cv2.resize(img, (128, 128))
-    img = img.astype("float32") / 255.0
-    img = np.expand_dims(img, axis=0)
+    if img is None:
+        return render_template("index.html", prediction="⚠️ Invalid image file.")
 
-    prediction = model.predict(img)[0][0]
+    resized = cv2.resize(img, (128, 128))
+    resized = resized.astype("float32") / 255.0
+    resized = np.expand_dims(resized, axis=0)
 
-    if prediction > 0.5:
-        result = "🐶 Dog"
-    else:
-        result = "🐱 Cat"
+    interpreter.set_tensor(input_details[0]['index'], resized)
+    interpreter.invoke()
+    prediction = interpreter.get_tensor(output_details[0]['index'])[0][0]
+
+    result = "🐶 Dog" if prediction > 0.5 else "🐱 Cat"
+
+    _, buffer = cv2.imencode(".jpg", img)
+    encoded_image = base64.b64encode(buffer).decode("utf-8")
+    image_data_uri = f"data:image/jpeg;base64,{encoded_image}"
 
     return render_template(
         "index.html",
         prediction=result,
-        image=filepath
+        image=image_data_uri
     )
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
-    
+    app.run(debug=False)

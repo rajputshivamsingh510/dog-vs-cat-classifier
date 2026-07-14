@@ -5,41 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dog vs Cat Classifier</title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<div class="container">
+<div class="scene">
 
-    <h1>🐶 Dog vs Cat Classifier 🐱</h1>
+    <div class="grid-overlay" aria-hidden="true"></div>
 
-    <form id="uploadForm" action="/predict" method="POST" enctype="multipart/form-data">
+    <main class="panel">
 
-        <div class="drop-area" id="drop-area">
+        <header class="panel-head">
+            <span class="eyebrow"><span class="eyebrow-dot"></span>COMPUTER VISION &middot; IMAGE CLASSIFIER</span>
+            <h1>Dog vs Cat Classifier</h1>
+            <p class="subtitle">Upload a photo and the model will detect whether it's looking at a dog or a cat.</p>
+        </header>
 
-            <p>Drag & Drop Image Here</p>
-            <span>OR</span>
+        <form id="uploadForm" action="/predict" method="POST" enctype="multipart/form-data">
 
-            <button type="button" id="browseBtn">
-                Browse Image
+            <div class="viewfinder" id="drop-area" tabindex="0" role="button" aria-label="Upload image">
+
+                <span class="corner corner-tl"></span>
+                <span class="corner corner-tr"></span>
+                <span class="corner corner-bl"></span>
+                <span class="corner corner-br"></span>
+                <span class="scan-line" aria-hidden="true"></span>
+
+                <div class="vf-empty" id="vf-empty">
+                    <svg class="vf-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 16.5V18a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5M7.5 9 12 4.5 16.5 9M12 4.5V16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p class="vf-title">Drag & drop image here</p>
+                    <span class="vf-or">OR</span>
+                    <button type="button" id="browseBtn" class="btn btn-ghost">Browse files</button>
+                    <span class="vf-hint">JPG, PNG &middot; up to 10MB</span>
+                </div>
+
+                <img id="preview" alt="Selected preview">
+                <span class="vf-tag" id="vf-tag">IMAGE READY</span>
+
+                <input type="file" id="fileInput" name="image" hidden accept="image/*">
+            </div>
+
+            <button type="submit" class="btn btn-primary predict-btn">
+                <span>Run Prediction</span>
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
             </button>
 
-            <input type="file" id="fileInput" name="image" hidden accept="image/*">
+        </form>
 
-        </div>
+        {% if prediction %}
+        <section class="result">
+            <div class="result-divider">
+                <span>RESULT</span>
+            </div>
+            <div class="result-frame">
+                <span class="corner corner-tl"></span>
+                <span class="corner corner-tr"></span>
+                <span class="corner corner-bl"></span>
+                <span class="corner corner-br"></span>
+                <img src="{{ image }}" class="result-image" alt="Classified image">
+                <span class="result-label">{{ prediction }}</span>
+            </div>
+        </section>
+        {% endif %}
 
-        <img id="preview">
+    </main>
 
-        <button type="submit" class="predict-btn">
-            Predict
-        </button>
-
-    </form>
-
-    {% if prediction %}
-        <h2>{{ prediction }}</h2>
-        <img src="{{ image }}" class="result-image">
-    {% endif %}
+    <footer class="scene-footer">
+        <span>Model runs locally &middot; no images are stored</span>
+    </footer>
 
 </div>
 
